@@ -19,7 +19,7 @@ declare -A STYLE_CODES=(
   ["dim"]="\[\e[2m\]"
   ["italic"]="\[\e[3m\]"
   ["underline"]="\[\e[4m\]"
-  ["default"]="\[\e[0m\]"
+  ["default"]=""
 )
 
 main_menu() {
@@ -27,6 +27,9 @@ main_menu() {
   
   if [ -n "$NEW_PROMPT" ]; then
     echo "Prompt preview:"
+    display_prompt="${NEW_PROMPT//\\t/\\\\t}"  # Escapar \t
+    display_prompt="${display_prompt//\\v/\\\\v}"  # Escapar \v
+    display_prompt="${display_prompt//\\n/\\\\n}"  # Escapar \n
     display_prompt="${NEW_PROMPT//\\[/}"
     display_prompt="${display_prompt//\\]/}"
     echo -e "${display_prompt}"
@@ -71,7 +74,7 @@ insert_element() {
 save_prompt() {
   clear
   
-  PS1="${NEW_PROMPT}"
+  PS1="$(printf "%b" "${NEW_PROMPT}")"
   echo "Prompt has been updated for this terminal session."
   echo "To make it permanent, add this line to your ~/.bashrc:"
   echo "PS1='${NEW_PROMPT}'"
@@ -85,7 +88,7 @@ Select an element to add:
  1) Username
  2) Hostname
  3) Current directory
- 4) Bash release
+ 4) Bash version
  5) Exit status
  6) Time
  7) Date
@@ -99,15 +102,15 @@ EOF
   echo "" >&2
   
   case $choice_element in
-    1) echo '\u' ;;
-    2) echo '\h' ;;
-    3) echo '\w' ;;
-    4) echo '\r' ;;
-    5) echo '$?' ;;
-    6) echo '\t' ;;
-    7) echo '\d' ;;
-    8) echo '\n' ;;
-    9) echo '\$' ;;
+    1) printf '%s' '\u' ;;
+    2) printf '%s' '\h' ;;
+    3) printf '%s' '\w' ;;
+    4) printf '%s' '\\v' ;;
+    5) printf '%s' '$?' ;;
+    6) printf '%s' '\\t' ;;
+    7) printf '%s' '\d' ;;
+    8) printf '%s' '\\n' ;;
+    9) printf '%s' '\$' ;;
     0) read -rp "Enter custom text: " custom && echo "$custom" ;;
     r|R) return ;;
     *) echo "Invalid option"; sleep 1; select_element ;;
